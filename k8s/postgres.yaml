@@ -1,0 +1,81 @@
+# Postgres for the lab. (In Phase 2/3 KubeAid's way is a CloudNativePG operator;
+# here we run it by hand so you see what an operator automates away.)
+#
+# Secret: the DB password. Note it's only base64 *encoded*, not encrypted —
+# anyone with repo access can decode it. That's the problem Sealed Secrets solves in Phase 3.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: notes-db
+  namespace: notes
+type: Opaque
+stringData:            # stringData = plain text in, k8s base64-encodes it for you
+  POSTGRES_PASSWORD: lab-password-change-me
+---
+# StatefulSet (not Deployment) because a database needs a stable identity
+# and its own disk that survives restarts.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: notes
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: notes
+            - name: POSTGRES_USER
+              value: notes
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: notes-db
+                  key: POSTGRES_PASSWORD
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "notes"]
+            periodSeconds: 5
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { memory: 256Mi }
+  # Each replica gets its own PersistentVolumeClaim (k3d provides storage via local-path)
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+---
+# Service = stable DNS name. The app connects to "postgres.notes.svc" (or just "postgres"
+# from the same namespace) instead of a pod IP that changes on every restart.
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: notes
+spec:
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
