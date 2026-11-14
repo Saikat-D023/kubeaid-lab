@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: demo-config
+data:
+  GREETING: "hello from a configmap"
+  LOG_LEVEL: "debug"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: demo-secret
+type: Opaque
+stringData:                  # write plain text; k8s stores it base64-encoded
+  DB_PASSWORD: "super-secret-123"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: env-demo
+spec:
+  restartPolicy: Never
+  containers:
+    - name: demo
+      image: busybox
+      command: ["sh", "-c", "echo GREETING=$GREETING LOG_LEVEL=$LOG_LEVEL DB_PASSWORD=$DB_PASSWORD"]
+      envFrom:
+        - configMapRef:
+            name: demo-config        # every key becomes an env var
+      env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:            # pick one key from the Secret
+              name: demo-secret
+              key: DB_PASSWORD

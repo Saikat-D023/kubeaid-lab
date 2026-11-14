@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web          # "my pods are the ones labelled app=web"
+  template:             # blueprint for each pod
+    metadata:
+      labels:
+        app: web        # must match the selector above
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.27
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+spec:
+  selector:
+    app: web            # route traffic to pods labelled app=web
+  ports:
+    - port: 80          # Service port
+      targetPort: 80    # container port
