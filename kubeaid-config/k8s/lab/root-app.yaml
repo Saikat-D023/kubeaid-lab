@@ -1,0 +1,15 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Saikat-D023/kubeaid-lab.git
+    targetRevision: main
+    path: kubeaid-config/k8s/lab/argocd-apps   # a folder of OTHER Applications
+  destination:
+    server: https://kubernetes.default.svc     # "this same cluster"
+    namespace: argocd
+  # no syncPolicy = manual sync, KubeAid's default
