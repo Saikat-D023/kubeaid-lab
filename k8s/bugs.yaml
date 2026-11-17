@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bugs
+---
+# Bug 1: wrong image tag -> ImagePullBackOff
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: bad-image, namespace: bugs }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: bad-image } }
+  template:
+    metadata: { labels: { app: bad-image } }
+    spec:
+      containers:
+        - name: web
+          image: nginx:this-tag-does-not-exist
+---
+# Bug 2: app exits with an error -> CrashLoopBackOff
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: crashy, namespace: bugs }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: crashy } }
+  template:
+    metadata: { labels: { app: crashy } }
+    spec:
+      containers:
+        - name: app
+          image: busybox
+          command: ["sh", "-c", "echo starting; sleep 3; echo 'fatal: DATABASE_URL is not set'; exit 1"]
+---
+# Bug 3: selector matches no pods -> Service with zero endpoints
+apiVersion: v1
+kind: Service
+metadata: { name: orphan-svc, namespace: bugs }
+spec:
+  selector: { app: nothing-has-this-label }
+  ports: [{ port: 80 }]
