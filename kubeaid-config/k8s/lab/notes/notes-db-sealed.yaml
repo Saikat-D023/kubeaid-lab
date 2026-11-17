@@ -1,0 +1,13 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: notes-db
+  namespace: notes
+spec:
+  encryptedData:
+    POSTGRES_PASSWORD: AgBY9iat0yOpRrQbEG4u++UXW9yr9iUaS/C4Ix2WU3uX/l5lKQRjTidfb5pfVYi4ZJkm+/9A+4rlH+0tWYEf5FdQ724gGLJf337RlqLUZQK1wvvYpN9Y0eYBsj9X307Xx/M1vy+qJIRFQFJVOAgZHnVigSwnLtjOPQ5Bg3kEBNUsApOoB3W74syDeRvsKxaQpLZeg/jHjFPhjINeMByC6QMNESG9OB/nXkzQDnLwprXPuM3EGxqVPAs1iUFCfXRVYs12uBk3hAOEVQfAm5E2DC9+wGagVkf5smoafwqwXA1FetLIJ6hudrXiJ1NXnRxJZ4JzY1InJw0unOGtPo1vehYAUaBpj3MdNm30Hvkdcn83bo63JdD6BU6TT4vA4lFZvBGGpbbRN+j8NYJckU644zltwIdqRNb+VmK62MXXfJPbvUo77rKjojWtY8rgit4nreBEbnCaH2GPf975Ht3SfT32vVti0nSk90hE50Mrk8TznyWtzXRHgjAgtJdDe5koxZXqxuSkUgNiz4Bc15vQ1v2ExwaQnkm9ot/KxGksTmEIDNMt9NjE0qt2fmrUFYobBLTRmQERm+DNVms4ZKraQuN52McUUMoB1oTyjkj/wBrMFeMbBnwwwVeh5IWTvP21DX08iT4kC1rf7GEvsQV/FuaU6IDcV8BtJwRNA2zT9hDsskqyGiaSpNlgvYFCMMPvriKfsO4Mi+Qddi5dvfDULLQO/q/WxYVV
+  template:
+    metadata:
+      name: notes-db
+      namespace: notes

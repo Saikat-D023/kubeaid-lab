@@ -3,15 +3,15 @@
 #
 # Secret: the DB password. Note it's only base64 *encoded*, not encrypted —
 # anyone with repo access can decode it. That's the problem Sealed Secrets solves in Phase 3.
-apiVersion: v1
-kind: Secret
-metadata:
-  name: notes-db
-  namespace: notes
-type: Opaque
-stringData:            # stringData = plain text in, k8s base64-encodes it for you
-  POSTGRES_PASSWORD: lab-password-change-me
----
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: notes-db
+#   namespace: notes
+# type: Opaque
+# stringData:            # stringData = plain text in, k8s base64-encodes it for you
+#   POSTGRES_PASSWORD: lab-password-change-me
+# ---
 # StatefulSet (not Deployment) because a database needs a stable identity
 # and its own disk that survives restarts.
 apiVersion: apps/v1
